@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
+import { addDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from './data/database.js'
 
 import './App.css'
 
 function App() {
 	const [messages, setMessages] = useState([]);
+	const [name, setName] = useState('')
+	const [draft, setDraft] = useState('')
 
 	useEffect(() => {
 		const getMessages = async () => {
@@ -17,7 +19,34 @@ function App() {
 		};
 	
 		getMessages();
-	  }, []); // Tom array som dependency gör att detta bara körs en gång vid mount
+	}, []); // Tom array som dependency gör att detta bara körs en gång vid mount
+
+	const sendMessage = async () => {
+		console.log('App sendMessage')
+		try {
+			const messagesCollection = collection(db, 'messages'); // Referera till "messages"-collectionen
+	
+			// Skapa ett nytt dokument i "messages"-collectionen
+			const messageObject = {
+				text: draft, // Innehållet i meddelandet
+				timestamp: Date.now(), // Tidsstämpel för när meddelandet skickades
+				sender: name,
+				receiver: 'random'
+			}
+			const nyttMeddelandeRef = await addDoc(messagesCollection, messageObject);
+	
+			console.log('Meddelande skickat med ID: ', nyttMeddelandeRef.id);
+			const messagesSnapshot = await getDocs(messagesCollection);
+			const messagesList = messagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+			setMessages(messagesList);
+			return nyttMeddelandeRef; // Returnera referensen till det nya dokumentet
+	
+		} catch (error) {
+			console.error('Fel vid skickande av meddelande: ', error);
+			throw error; // Kasta felet vidare för att hantera det högre upp i anropsstacken
+		}
+	}
+
 	return (
 		<div className="app">
 		<h1> 🔥Heta chatten🔥 </h1>
@@ -26,15 +55,20 @@ function App() {
 
 			<section className="auth">
 				<label htmlFor=""> Ditt namn </label>
-				<input type="text" />
-				<button> Nu kör vi </button>
+				<input type="text"
+					onChange={event => setName(event.target.value)}
+					value={name}
+					/>
 			</section>
 
-				<section className="send">
+			<section className="send">
 				<label htmlFor=""> Säg något + Enter </label>
-				<textarea name="" id="" rows="4"></textarea>
+				<textarea name="" id="" rows="4"
+					onChange={event => setDraft(event.target.value)}
+					value={draft}
+					/>
 				<div>
-				<button> Skicka </button>
+				<button onClick={sendMessage}> Skicka </button>
 				</div>
 			</section>
 
@@ -45,14 +79,6 @@ function App() {
 						<p> {message.sender} </p>
 					</div>
 				))}
-				{/* <div className="message">
-					<p> Hallå eller </p>
-					<p> Nisse Nilsson, 12:45 </p>
-				</div>
-				<div className="message">
-					<p> Hallå igen </p>
-					<p> Nisse Nilsson, alldeles nyss </p>
-				</div> */}
 			</div>
 
 
