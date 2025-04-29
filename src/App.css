@@ -1,0 +1,45 @@
+* { box-sizing: border-box; }
+body {
+	margin: 0;
+	background-color: #fafafa;
+}
+
+.app {
+	margin: auto;
+	max-width: 27em;
+}
+h1 { text-align: center; }
+main {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	
+}
+.auth, .messages, .send {
+	border: 1px solid gray;
+}
+.auth {
+	padding: 1em;
+	display: flex;
+	flex-direction: column;
+}
+.messages {
+	padding: 1em;
+	
+	.message {
+		border: 1px solid black;
+		margin: 0.3em;
+		margin-bottom: 0.8em;
+		padding: 0.5em;
+		border-radius: 0.3em;
+		box-shadow: 0.2em 0.2em 0.3em gray;
+		
+		p { margin: 0; }
+	}
+}
+
+.send {
+	display: flex;
+	flex-direction: column;
+	padding: 1em;
+}
