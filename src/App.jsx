@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { addDoc, collection, getDocs } from 'firebase/firestore'
+import { doc, addDoc, collection, getDocs, deleteDoc } from 'firebase/firestore'
 import { db } from './data/database.js'
 
 import './App.css'
@@ -17,7 +17,7 @@ function App() {
 			setMessages(messagesList);
 			console.log('App getMessages, messages=', messagesList)
 		};
-	
+
 		getMessages();
 	}, []); // Tom array som dependency gör att detta bara körs en gång vid mount
 
@@ -25,7 +25,7 @@ function App() {
 		console.log('App sendMessage')
 		try {
 			const messagesCollection = collection(db, 'messages'); // Referera till "messages"-collectionen
-	
+
 			// Skapa ett nytt dokument i "messages"-collectionen
 			const messageObject = {
 				text: draft, // Innehållet i meddelandet
@@ -34,17 +34,32 @@ function App() {
 				receiver: 'random'
 			}
 			const nyttMeddelandeRef = await addDoc(messagesCollection, messageObject);
-	
+
 			console.log('Meddelande skickat med ID: ', nyttMeddelandeRef.id);
 			const messagesSnapshot = await getDocs(messagesCollection);
 			const messagesList = messagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 			setMessages(messagesList);
 			return nyttMeddelandeRef; // Returnera referensen till det nya dokumentet
-	
+
 		} catch (error) {
 			console.error('Fel vid skickande av meddelande: ', error);
 			throw error; // Kasta felet vidare för att hantera det högre upp i anropsstacken
 		}
+	}
+
+	const deleteMessage = async messageId => {
+		// Skapa referens till dokumentet som ska tas bort
+		const messageDocRef = doc(db, 'messages', messageId);
+
+		// Ta bort dokumentet
+		await deleteDoc(messageDocRef);
+
+		console.log(`Dokumentet med ID ${messageId} har tagits bort.`);
+
+		const messagesCollection = collection(db, 'messages');
+		const messagesSnapshot = await getDocs(messagesCollection);
+		const messagesList = messagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		setMessages(messagesList);
 	}
 
 	return (
@@ -76,7 +91,10 @@ function App() {
 				{messages.map(message => (
 					<div key={message.id} className="message">
 						<p> {message.text} </p>
-						<p> {message.sender} </p>
+						<p>
+							{message.sender}
+							<button onClick={() => deleteMessage(message.id)}> Ta bort </button>
+						</p>
 					</div>
 				))}
 			</div>
