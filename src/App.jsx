@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react'
-import { doc, addDoc, collection, getDocs, deleteDoc } from 'firebase/firestore'
-import { db } from './data/database.js'
-
 import './App.css'
 import { deleteMessage, getMessages, sendMessage } from './data/crud.js';
 
