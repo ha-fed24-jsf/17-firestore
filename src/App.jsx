@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { deleteMessage, getMessages, sendMessage } from './data/crud.js';
+import Message from './components/Message.jsx';
 
 function App() {
 	const [messages, setMessages] = useState([]);
@@ -42,13 +43,7 @@ function App() {
 
 			<div className="messages">
 				{messages.map(message => (
-					<div key={message.id} className="message">
-						<p> {message.text} </p>
-						<p>
-							{message.sender}
-							<button onClick={() => deleteMessage(message.id, setMessages)}> Ta bort </button>
-						</p>
-					</div>
+					<Message key={message.id} message={message} deleteMessage={deleteMessage} setMessages={setMessages} />
 				))}
 			</div>
 

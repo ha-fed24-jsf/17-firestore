@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, addDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "./database.js";
 
 async function getMessages(setMessages) {
@@ -44,4 +44,19 @@ async function deleteMessage(messageId, setMessages) {
 	getMessages(setMessages)
 }
 
-export { getMessages, sendMessage, deleteMessage }
+async function editMessage(messageId, newText, setMessages) {
+	const messageRef = doc(db, "messages", messageId); // Referens till dokumentet
+
+	try {
+		await updateDoc(messageRef, {
+			text: newText // Uppdatera text-fältet
+		})
+		console.log("Dokument uppdaterat!")
+		getMessages(setMessages)
+
+	} catch (e) {
+		console.error("Fel vid uppdatering av dokument: ", e)
+	}
+}
+
+export { getMessages, sendMessage, deleteMessage, editMessage }
